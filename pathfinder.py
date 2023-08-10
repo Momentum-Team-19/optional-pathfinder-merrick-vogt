@@ -46,9 +46,11 @@ def create_2d_array_from_list(data_points, rows, columns):
 def greedy_walk(data_array, rows, columns):
     short_path = []
     shortest_path = []
+    short_path_array = []
     for y in range(rows-1):
         # restart elevation change count for each path
         total_elevation_change = 0
+        path_row = []
 
         # for x in range(columns-1):
         for x in range(columns-1):
@@ -98,13 +100,15 @@ def greedy_walk(data_array, rows, columns):
 
             # start appending at index 1 instead of 0.
             short_path.append([x+1, y])
+            path_row.append([x+1, y]) 
             
             total_elevation_change += options[greedy_option_index]
         shortest_path.append(total_elevation_change)
+        short_path_array.append(path_row)
         
     shortest_path_index = shortest_path.index(min(shortest_path))
-    print(f'shortest path index: {shortest_path_index}')
-    return short_path, shortest_path_index
+    
+    return short_path, short_path_array[shortest_path_index]
 
 
 def draw_short_path(text_file_path, input_img_path, output_img_path):
@@ -133,21 +137,14 @@ def draw_short_path(text_file_path, input_img_path, output_img_path):
     data_array = create_2d_array_from_list(data_points, rows, columns)
     
     greedy_walk_paths = greedy_walk(data_array, rows, columns)
-    # print(greedy_walk_paths)
+    
 
     for index, location in enumerate(greedy_walk_paths[0]):
-        
-        if greedy_walk_paths[1]*(columns-1) <= index < 2*greedy_walk_paths[1]*(columns-1):
-            print(f'green: {index} location: {location}')
-            pixels[location[0], location[1]] = (0, 255, 0)  # set pixel to green
-        else:
-            pixels[location[0], location[1]] = (255, 0, 0)  # set pixel to red
+        pixels[location[0], location[1]] = (255, 0, 0)  # set pixel to red
 
-    print(greedy_walk_paths[0])
-    print(greedy_walk_paths[0][1])
-    # if index == greedy_walk_paths[1]:
-    #         pixels[location[0], location[1]] = (0, 255, 0)  # set pixel to green
-    
+    for index, location in enumerate(greedy_walk_paths[1]):
+        pixels[location[0], location[1]] = (0, 255, 0) # set pixel to green
+   
     # Save the modified image
     image.save(output_img_path)
 
@@ -191,10 +188,6 @@ def create_img_from_elevation(text_file_path, output_image_path):
         # set each pixel in the pixel 2D array to the grayscale
         pixels[x, y] = grayscale_value
 
-        # Show processing progress
-        # if x % image_size - 1 == 0 and y % 10 == 0:
-        # print(f"Finished processing line {y + 1} out of {image_size}")
-
     # Apply contrast stretching to the image
     image = contrast_stretch(image)
 
@@ -210,11 +203,11 @@ create_img_from_elevation(small_input_file, small_output_image)
 small_one_path_output_image = 'small_one_path_output_image.png'
 draw_short_path(small_input_file, small_output_image, small_one_path_output_image)
 
-# large_input_file = 'elevation_large.txt'
-# large_output_image = 'large_elevation_image.png'
-# create_img_from_elevation(large_input_file, large_output_image)
-# short_path_output_image = 'short_path_output_image.png'
-# draw_short_path(large_input_file, large_output_image, short_path_output_image)
+large_input_file = 'elevation_large.txt'
+large_output_image = 'large_elevation_image.png'
+create_img_from_elevation(large_input_file, large_output_image)
+short_path_output_image = 'short_path_output_image.png'
+draw_short_path(large_input_file, large_output_image, short_path_output_image)
 
 # Testing
 
